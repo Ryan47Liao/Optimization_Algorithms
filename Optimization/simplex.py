@@ -71,7 +71,8 @@ def Result(O):
             OUT[idx] = (O[:,-1][temp[idx]] if temp[idx] is not None else 0) 
     return OUT
     
-def simplex(A,b,c,dual:bool = False, results_show: bool = True):
+def simplex(A,b,c,dual:bool = False, results_show: bool = True, 
+            trace:bool = False, trace_precision = 2):
     """
     The Simplex Method of an standard linear programming system
     @A: The constraint matrix the optimization problem is subject to 
@@ -85,8 +86,15 @@ def simplex(A,b,c,dual:bool = False, results_show: bool = True):
     M[A.shape[0],0:A.shape[1]] = c
     i,j =  (Get_i(M),Get_j(M))
     while j != None:
+        temp = M
         M = Pivot(M, (i,j))
+        if trace:
+            print(temp.round(trace_precision))
+            print("-->"*10+f"Pivoting on {i,j}"+"-->"*10)
+            print(M.round(trace_precision))
+            print("~"*60)
         i,j =  (Get_i(M),Get_j(M))
+        
     argmins = Result(M)
     min_idx = np.array(M.shape)-1
     minimum = -1*M[min_idx[0],min_idx[1]]
@@ -119,7 +127,7 @@ if __name__ == "__main__":
     #A = np.array([2,-1,7,1,0,0,1,3,4,0,1,0,3,6,1,0,0,1]).reshape(3,6)
     #b = np.array([0,9,3])
     #c = np.array([-2,-5,-1,0,0,0])
-    for i in simplex(A, b, c,True):print(i)
+    for i in simplex(A, b, c,True,trace=True):print(i)
     print("DONE")
     
     
