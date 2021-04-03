@@ -71,7 +71,7 @@ def Result(O):
             OUT[idx] = (O[:,-1][temp[idx]] if temp[idx] is not None else 0) 
     return OUT
     
-def simplex(A,b,c,dual:bool = False):
+def simplex(A,b,c,dual:bool = False, results_show: bool = True):
     """
     The Simplex Method of an standard linear programming system
     @A: The constraint matrix the optimization problem is subject to 
@@ -92,11 +92,19 @@ def simplex(A,b,c,dual:bool = False):
     minimum = -1*M[min_idx[0],min_idx[1]]
     if dual:
         B,D,c_d,c_b,r_d = simplex_split(A,c,M)
-        argmins_dual = np.linalg.solve(a = D.transpose(),
-                                           b = np.array([c_d-r_d]).transpose())
-            #argmins_dual = [c_d - r_d] @ np.linalg.inv(D)
-        #except:
-            #argmins_dual = c_b.transpose()@np.linalg.inv(B)
+        try:
+            argmins_dual = np.linalg.solve(a = D.transpose(),b = np.array(c_d-r_d).transpose())
+        except np.linalg.LinAlgError:
+            try:
+                argmins_dual = [c_d - r_d] @ np.linalg.inv(D)
+            except:
+                argmins_dual = c_b.transpose()@np.linalg.inv(B)
+        if results_show: 
+            print(f"""
+The minimum of this optimization problem is achieved at ->>>{argmins}<<<-; 
+Its dual argmins are ->>>{-1*argmins_dual}<<<-; 
+The optimized value of the objective function is: ->>>{minimum}<<<-.
+                   """)
         return argmins,argmins_dual,minimum
     else:
         return argmins,minimum
